@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Text;
 import util.ColorUtil;
 import util.Frame;
 import util.SWTUtil;
@@ -33,6 +34,7 @@ public class MainFrame extends Frame {
     private List<Point> points;
     private GC gc;
     private Canvas canvas;
+    private Text kText;
 
     public MainFrame() throws Exception {
     }
@@ -56,7 +58,11 @@ public class MainFrame extends Frame {
         Button curveBtn = SWTUtil.createButton(shell, "curve", () -> {
             curve();
         });
-        SWTUtil.pack(12, pointBtn, lineBtn, clearBtn);
+        kText = SWTUtil.createText(shell, "2");
+        Button kmeansBtn = SWTUtil.createButton(shell, "kmeans", () -> {
+            kmeans();
+        });
+        SWTUtil.pack(12, pointBtn, lineBtn, clearBtn, kText, kmeansBtn);
 
         canvas = new Canvas(shell, SWT.BORDER);
         gc = new GC(canvas);
@@ -89,6 +95,17 @@ public class MainFrame extends Frame {
             System.out.println("click point");
         });
         pointBtn2.setLayoutData(SWTUtil.createGridData(12, 1));
+    }
+
+    private void kmeans() {
+        String k = kText.getText();
+        int p = 2;
+        try {
+            p = Integer.parseInt(k);
+        } catch (NumberFormatException e) {
+            p = 2;
+        }
+        List<List<Point>> lists = new Points(points).kmeans(p);
     }
 
     private void curve() {

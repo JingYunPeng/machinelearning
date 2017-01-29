@@ -33,64 +33,120 @@ public class Points {
         return new DDuble(a, b);
     }
 
+    private double dist(DDuble center, DDuble point) {
+        double dx = center.a - point.a;
+        double dy = center.b - point.b;
+        return dx * dx + dy * dy;
+    }
+
     public List<List<Point>> kmeans(int k) {
-        List<List<Point>> result = Lists.newArrayList();
         if (n < k) {
             throw new RuntimeException();
         }
-        List<List<Point>> temp = copy(result);
-        return null;
-    }
-
-    private List<List<Point>> copy(List<List<Point>> ori) {
-        List<List<Point>> copy = Lists.newArrayList();
-        for (List<Point> pointList : ori) {
-            List<Point> copyPointList = Lists.newArrayList();
-            for (Point point : pointList) {
-                copyPointList.add(point);
-            }
-            copy.add(copyPointList);
+        List<ExPoint> exPoints = Lists.newArrayList();
+        for (Point point : points) {
+            exPoints.add(new ExPoint(point, k - 1));
         }
-        return copy;
+
+        for (int i = 0; i < k; i++) {
+            exPoints.get(i).setGroupId(i);
+        }
+
+
+        while (doKmeans(exPoints, k)) ;
+
+
+        List<List<Point>> result = Lists.newArrayList();
+        for (int i = 0; i < k; i++) {
+            result.add(Lists.newArrayList());
+        }
+        for (ExPoint exPoint : exPoints) {
+            result.get(exPoint.getGroupId()).add(exPoint.point);
+        }
+        System.out.println("result = " + result);
+        for (List<Point> pointList : result) {
+            System.out.println("pointList.size() = " + pointList.size());
+        }
+        return result;
     }
 
-    private boolean allEquals(List<List<Point>> temp, List<List<Point>> last) {
-        for (List<Point> pointList : temp) {
-            boolean notFound = true;
-            for (List<Point> list : last) {
-                if (equals(pointList, list)) {
-                    notFound = false;
-                    break;
-                }
-            }
-            if (notFound) {
-                return false;
+    private boolean doKmeans(List<ExPoint> exPoints, int k) {
+        boolean result = false;
+        List<DDuble> centers = Lists.newArrayList();
+        for (int i = 0; i < k; i++) {
+            centers.add(getCenter(exPoints, i));
+        }
+        for (ExPoint exPoint : exPoints) {
+            DDuble point = new DDuble(exPoint.point);
+            int index = getIndex(k, centers, point);
+            result |= exPoint.changeGroupIdTo(index);
+        }
+        return result;
+    }
+
+    private int getIndex(int k, List<DDuble> centers, DDuble point) {
+        DDuble temp = centers.get(0);
+        int index = 0;
+        for (int i = 1; i < k; i++) {
+            DDuble center = centers.get(i);
+            if (dist(point, center) < dist(point, temp)) {
+                temp = center;
+                index = i;
             }
         }
-        return true;
+        return index;
     }
 
-    private boolean equals(List<Point> temp, List<Point> last) {
-        if (temp.size() != last.size()) {
-            return false;
-        }
-        for (Point tempPoint : temp) {
-            boolean notFound = true;
-            for (Point lastPoint : last) {
-                if (equals(tempPoint, lastPoint)) {
-                    notFound = false;
-                    break;
-                }
-            }
-            if (notFound) {
-                return false;
+    private DDuble getCenter(List<ExPoint> exPoints, int i) {
+        double sx = 0.0;
+        double sy = 0.0;
+        int count = 0;
+        for (ExPoint exPoint : exPoints) {
+            if (exPoint.getGroupId() == i) {
+                sx += exPoint.point.x;
+                sy += exPoint.point.y;
+                count++;
             }
         }
-        return true;
+        return new DDuble(sx / count, sy / count);
     }
 
-    private boolean equals(Point temp, Point last) {
-        return temp.x == last.x && temp.y == last.y;
+    private class ExPoint {
+        private int groupId;
+        private final Point point;
+
+        public ExPoint(Point point) {
+            this.point = point;
+        }
+
+        public ExPoint(Point point, int k) {
+            this.point = point;
+            this.groupId = k;
+        }
+
+        public int getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(int groupId) {
+            this.groupId = groupId;
+        }
+
+        public boolean changeGroupIdTo(int index) {
+            boolean changed = groupId != index;
+            setGroupId(index);
+            return changed;
+        }
     }
 
+    public static void main(String[] args) {
+        List<Point> ps = Lists.newArrayList();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j <= i; j++) {
+                int p = i * 10 + j;
+                ps.add(new Point(p, p));
+            }
+        }
+        new Points(ps).kmeans(5);
+    }
 }

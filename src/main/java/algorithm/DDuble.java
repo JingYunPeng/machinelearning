@@ -1,5 +1,7 @@
 package algorithm;
 
+import org.eclipse.swt.graphics.Point;
+
 /**
  * Created by Administrator on 2017/1/27.
  */
@@ -11,4 +13,9 @@ public class DDuble {
 
     public double a;
     public double b;
+
+    public DDuble(Point point) {
+        a = point.x;
+        b = point.y;
+    }
 }

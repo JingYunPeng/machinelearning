@@ -4,10 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Created by jing on 2017/1/24.\
@@ -23,6 +20,12 @@ public class SWTUtil {
             }
         });
         return button;
+    }
+
+    public static Text createText(Composite composite, String defaultText) {
+        Text text = new Text(composite, SWT.SINGLE | SWT.BORDER);
+        text.setText(defaultText);
+        return text;
     }
 
     public static interface Listener {
