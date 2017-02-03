@@ -18,4 +18,8 @@ public class DDuble {
         a = point.x;
         b = point.y;
     }
+
+    public Point toPoint() {
+        return new Point((int) a, (int) b);
+    }
 }

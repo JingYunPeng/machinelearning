@@ -8,7 +8,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.GCData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -19,6 +18,7 @@ import util.Frame;
 import util.SWTUtil;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by jing on 2017/1/24.
@@ -106,6 +106,24 @@ public class MainFrame extends Frame {
             p = 2;
         }
         List<List<Point>> lists = new Points(points).kmeans(p);
+        display(lists);
+    }
+
+    private void display(List<List<Point>> lists) {
+        if (lists.size() < 6) {
+            for (int i = 0; i < lists.size(); i++) {
+                draw(lists.get(i), ColorUtil.COLORS.get(i));
+            }
+        }
+    }
+
+    private void draw(List<Point> points, Color color) {
+        for (Point point : points) {
+            if (gc != null) {
+                gc.setBackground(color);
+                gc.fillOval(point.x, point.y, 7, 7);
+            }
+        }
     }
 
     private void curve() {
