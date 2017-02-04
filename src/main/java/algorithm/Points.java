@@ -44,7 +44,68 @@ public class Points {
         return dist(new DDuble(p1), p2);
     }
 
+    public List<List<Point>> evaluatedKeans(int k) {
+        List<ExPoint> result = Lists.newArrayList();
+        double value = 0.0;
+        for (int i = 0; i < 50; i++) {
+            List<ExPoint> exKmeans = getExKmeans(k);
+            if (evalue(k, exKmeans) > value) {
+                value = evalue(k, exKmeans);
+                result = exKmeans;
+            }
+        }
+        return calcuResult(k, result);
+    }
+
+    private double evalue(int k, List<ExPoint> exPoints) {
+        double ssv = 0.0;
+        for (ExPoint exPoint : exPoints) {
+            ssv += evalue(k, exPoint, exPoints);
+        }
+        return ssv / exPoints.size();
+    }
+
+    private double evalue(int k, ExPoint exPoint, List<ExPoint> exPoints) {
+        double sav = 0.0;
+        int aCount = -1;
+        double[] bvs = new double[k];
+        for (int i = 0; i < k; i++) {
+            bvs[i] = 0.0;
+        }
+
+        for (ExPoint other : exPoints) {
+            Point otherPoint = other.point;
+            int otherGroupId = other.getGroupId();
+            double dist = dist(otherPoint, exPoint.point);
+
+            if (exPoint.getGroupId() == otherGroupId) {
+                sav += dist;
+                aCount++;
+            } else {
+                if (bvs[otherGroupId] == 0.0) {
+                    bvs[otherGroupId] = dist;
+                } else if (dist < bvs[otherGroupId]) {
+                    bvs[otherGroupId] = dist;
+                }
+            }
+        }
+        double sbv = 0.0;
+        for (double bv : bvs) {
+            sbv += bv;
+        }
+
+        double av = aCount == 0 ? 0.0 : sav / aCount;
+        double bv = sbv / (k - 1);
+        double sv = (bv - av) / Math.max(av, bv);
+        return sv;
+    }
+
+
     public List<List<Point>> kmeans(int k) {
+        return calcuResult(k, getExKmeans(k));
+    }
+
+    private List<ExPoint> getExKmeans(int k) {
         if (n < k) {
             throw new RuntimeException();
         }
@@ -53,8 +114,7 @@ public class Points {
 
         while (doKmeans(exPoints, k)) ;
 
-        List<List<Point>> result = calcuResult(k, exPoints);
-        return result;
+        return exPoints;
     }
 
     private List<List<Point>> calcuResult(int k, List<ExPoint> exPoints) {
@@ -65,24 +125,13 @@ public class Points {
         for (ExPoint exPoint : exPoints) {
             result.get(exPoint.getGroupId()).add(exPoint.point);
         }
-        System.out.println("result = " + result);
-        for (List<Point> pointList : result) {
-            System.out.println("pointList.size() = " + pointList.size());
-        }
         return result;
     }
 
     private void initExpoints(int k, List<ExPoint> exPoints) {
-//        for (Point point : points) {
-//            exPoints.add(new ExPoint(point, k - 1));
-//        }
-//
-//        for (int i = 0; i < k - 1; i++) {
-//            exPoints.get(i).setGroupId(i);
-//        }
         for (Point point : points) {
             Random random = new Random();
-            exPoints.add(new ExPoint(point,random.nextInt(k)));
+            exPoints.add(new ExPoint(point, random.nextInt(k)));
         }
     }
 
@@ -133,7 +182,6 @@ public class Points {
         }
         DDuble dDuble = new DDuble(sx / count, sy / count);
         Point center = group.get(getIndex(group, dDuble));
-        System.out.println("center of " + group + " is " + center);
         return center;
     }
 

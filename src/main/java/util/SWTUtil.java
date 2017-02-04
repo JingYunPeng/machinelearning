@@ -28,6 +28,12 @@ public class SWTUtil {
         return text;
     }
 
+    public static Label createLabel(Composite composite, String text) {
+        Label label = new Label(composite, SWT.NONE);
+        label.setText(text);
+        return label;
+    }
+
     public static interface Listener {
         void onClick();
     }

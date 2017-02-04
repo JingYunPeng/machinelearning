@@ -6,12 +6,15 @@ import com.google.common.collect.Lists;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import util.ColorUtil;
 import util.Frame;
@@ -35,6 +38,8 @@ public class MainFrame extends Frame {
     private GC gc;
     private Canvas canvas;
     private Text kText;
+    private Label xLabel;
+    private Label yLabel;
 
     public MainFrame() throws Exception {
     }
@@ -89,11 +94,32 @@ public class MainFrame extends Frame {
 
             }
         });
+//        canvas.addMouseTrackListener(new MouseTrackAdapter() {
+//            @Override
+//            public void mouseHover(MouseEvent mouseEvent) {
+//                if (xLabel != null && yLabel != null) {
+//                    xLabel.setText(String.valueOf(mouseEvent.x));
+//                    System.out.println("x = " + mouseEvent.x);
+//                    yLabel.setText(String.valueOf(mouseEvent.y));
+//                    System.out.println("y = " + mouseEvent.y);
+//                }
+//            }
+//        });
+        canvas.addMouseMoveListener(e -> {
+            if (xLabel != null && yLabel != null) {
+                xLabel.setText(String.valueOf(e.x));
+                yLabel.setText(String.valueOf(e.y));
+            }
+        });
         canvas.setLayoutData(SWTUtil.createGridData(12, 1, 700, 500));
 
         Button pointBtn2 = SWTUtil.createButton(shell, "Point", () -> {
             System.out.println("click point");
         });
+        xLabel = new Label(shell, SWT.NONE);
+        xLabel.setText("         ");
+        yLabel = new Label(shell, SWT.NONE);
+        yLabel.setText("          ");
         pointBtn2.setLayoutData(SWTUtil.createGridData(12, 1));
     }
 
@@ -105,7 +131,7 @@ public class MainFrame extends Frame {
         } catch (NumberFormatException e) {
             p = 2;
         }
-        List<List<Point>> lists = new Points(points).kmeans(p);
+        List<List<Point>> lists = new Points(points).evaluatedKeans(p);
         display(lists);
     }
 
